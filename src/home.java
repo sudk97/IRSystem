@@ -24,20 +24,21 @@ import java.util.logging.Logger;
 
 public class home extends javax.swing.JFrame {
     
-    class node
+    class node //creates a structure that holds 
+               //document's path in data variable, pointer to next doc in posting list and skip pointer
     {
-        String data;
-        node next;
+        String data; //path
+        node next; 
         node skip;
         
         node(String a)
         {
-            data=a;
+            data=a; //initializing through constructor
             next=null;
             skip=null;
         }
         
-        node()
+        node() //null intialization in case of temperory nodes
         {
             data="";
             next=null;
@@ -47,9 +48,7 @@ public class home extends javax.swing.JFrame {
         
     }
 
-    /**
-     * Creates new form home
-     */
+
     public home() {
         initComponents();
     }
@@ -142,32 +141,34 @@ public class home extends javax.swing.JFrame {
 
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        //when "Add Documents" is pressed
+        JFileChooser fileChooser = new JFileChooser(); //opens up a dialogue box for importing files
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home"))); //takes in file
         int result = fileChooser.showOpenDialog(this);
         File selectedFile=null;
         if (result == JFileChooser.APPROVE_OPTION) {
-            selectedFile = fileChooser.getSelectedFile();
+            selectedFile = fileChooser.getSelectedFile(); //if any file is imported, set the file to var selected file
         }
         if(selectedFile!=null)
         {
             try {
-                readfilecontents(selectedFile.toString());
+                readfilecontents(selectedFile.toString()); //function reads the file content and inserts 
+                                                           //every term in doc to the posting list
             } catch (IOException ex) {
-                System.out.println("Exception at insert: "+ex);
+                System.out.println("Exception at insert: "+ex); 
             }
         }
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String query;
+        //when "Search" is pressed
+        String query; 
         if(jTextField1.getText()!="")
         {
-            query=jTextField1.getText();
+            query=jTextField1.getText(); //take in query from user
             try {
-                operatequery(query);
+                operatequery(query); //analyze query and display results in text area accordingly
             } catch (IOException ex) {
                 System.out.println("Exception at search: "+ex);
             }
@@ -176,40 +177,53 @@ public class home extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
     
     
-HashMap<String,node> map=new HashMap<>();
+    HashMap<String,node> map=new HashMap<>(); // A dictionary of terms pointing to their respective posting lists
     
     public void operatequery(String q) throws IOException
     {
-        String[] qs=q.split(" ");
+        //We operate on query by using Boolean AND operator on all individual terms 
+        String[] qs=q.split(" "); //split all query terms
         if(qs.length==1)
         {
-            printlist(findlist(qs[0]));
+            printlist(findlist(qs[0])); //if only one term, display its posting list
             return;
         }
-        List<String> l=matchlist(findlist(qs[0]),findlist(qs[1]));
+        
+        //findlist() give the posting list of respective term
+        
+        List<String> l=matchlist(findlist(qs[0]),findlist(qs[1])); //Match list will find intersection 
+                                                                   //of two posting list
+        
         for(int i=2;i<qs.length;i++)
         {
-            l=matchlist(l,findlist(qs[i]));
+            l=matchlist(l,findlist(qs[i])); //Intersect the obtained list with remaining terms, basically if there
+                                            //are 4 terms, this loop is performing T1 AND T2 AND T3 AND T4
         }
-        printlist(l);
+        
+        printlist(l); //print the obtained list on textarea
     }
     
     public List<String> matchlist(List<String> l1,List<String> l2)
     {
+        //intersecting docs between two list
         
-        int i=0,j=0;
-        List<String> r=new ArrayList<>();
+        int i=0,j=0; //i points to list1, j to list2
+        
+        List<String> r=new ArrayList<>();   //intersection list
+        
         while(i<l1.size() && j<l2.size())
         {
-            String cur1=l1.get(i);
-            String cur2=l2.get(j);
-            if(cur1.equals(cur2))
+            
+            String cur1=l1.get(i); //curr doc from l1
+            String cur2=l2.get(j); //curr doc from l2
+            
+            if(cur1.equals(cur2)) //if matches add the curr doc to result list
             {
                 r.add(cur2);
                 i++;
                 j++;
             }
-            else if(cur1.compareTo(cur2)<0)
+            else if(cur1.compareTo(cur2)<0) //else move on to next doc accordingly
             {
                 i++;
             }
@@ -220,7 +234,7 @@ HashMap<String,node> map=new HashMap<>();
         return r;
     }
 
-    public void printMap(HashMap mp) {
+    public void printMap(HashMap mp) { //Prints the map. Used for debugging, will be helpful while printing the posting list
         Iterator it = mp.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
@@ -239,76 +253,73 @@ HashMap<String,node> map=new HashMap<>();
         System.out.println("________________________________________");
     }
     
-    void printlist(List<String> list) throws IOException
+    void printlist(List<String> list) throws IOException //prints the given list to textarea
     {
         String output="";
         for(int i=0;i<list.size();i++)
         {
-            output+="File name:"+list.get(i)+"\nContents of file: \n";
-            List<String> lines = Files.readAllLines(Paths.get(list.get(i)));
+            output+="File name:"+list.get(i)+"\nContents of file: \n"; //takes the list contents whichis nothing 
+                                                                        //but path name of docs
+            List<String> lines = Files.readAllLines(Paths.get(list.get(i)));//get contents of that path
+            
             for(int j=0;j<lines.size();j++)
-                output+=lines.get(j)+"\n";
+                output+=lines.get(j)+"\n"; //store the contents into output string
             output+="\n";
         }
         if(output.equals(""))
             output="Not Found";
             
-        jTextArea1.setText(output);
+        jTextArea1.setText(output); //print output to jtextarea
     }
     
-    public List findlist(String query) throws IOException
+    public List findlist(String query) throws IOException //finds posting list from map pertaining to a term
     {
+        
         List<String> l=new ArrayList<String>();
         if(map.containsKey(query))
         {
             node tempn=map.get(query);
             while(tempn!=null)
             {
-                //output+="File name:"+tempn.data+"\nContents of file: \n";
-                //List<String> lines = Files.readAllLines(Paths.get(tempn.data));
-                //for(int j=0;j<lines.size();j++)
-                //    output+=lines.get(j)+"\n";
-                //output+="\n";
-                
                 l.add(tempn.data);
-                tempn=tempn.next;
-                
-                
+                tempn=tempn.next;   
             }
         }
        
         return l;
     }
-    public void readfilecontents(String path) throws IOException
+    public void readfilecontents(String path) throws IOException //reads a file and makes the corresponding posting list
     {
         
-        List<String> lines = Files.readAllLines(Paths.get(path));
+        List<String> lines = Files.readAllLines(Paths.get(path)); //Read all lines from the file into a list
 
         for(int i=0;i<lines.size();i++)
         {
-            StringTokenizer st=new StringTokenizer(lines.get(i));
-            while(st.hasMoreTokens())
+            StringTokenizer st=new StringTokenizer(lines.get(i)); //for each line tokenize the words
+            
+            while(st.hasMoreTokens()) //until no new word is yet to be processed
             {
                 
-                String stemp=st.nextToken();
+                String stemp=st.nextToken(); //next word
+                
                 boolean flag=true;
                 
                 
-                if(map.containsKey(stemp))
+                if(map.containsKey(stemp)) //if already contains word, append to posting list
                 {
                     int k=0;
                     node curr=map.get(stemp);
                     
-                    if(curr.data.compareTo(path)>0 && curr.data.compareTo(path)!=0)
+                    if(curr.data.compareTo(path)>0 && curr.data.compareTo(path)!=0) //sort first term in posting list
                     {
-                        map.put(stemp,new node(path));
-                        map.get(stemp).next=curr;
-                        flag=false;
+                        map.put(stemp,new node(path)); //add doc
+                        map.get(stemp).next=curr; 
+                        flag=false; //once false, doesn't append the doc in end
                     }
                     
-                    while(curr.skip!=null )
+                    while(curr.skip!=null ) //iterate via skip till the position where doc is to be added is found
                     {
-                        if(curr.data.equals(path))
+                        if(curr.data.equals(path)) //if doc already added, don't add
                         {
                             flag=false;
                             break;
@@ -317,28 +328,33 @@ HashMap<String,node> map=new HashMap<>();
                             break;
                         
                         curr=curr.skip;
-                    }
-                    node skipassign=curr;
-                    while(curr.next!=null )
+                    } 
+                    
+                    node skipassign=curr;//for assigning skip pointers
+                    
+                    while(curr.next!=null )//iterate via next till the position where doc is to be added is found
                     {
-                        if(curr.data.equals(path))
+                        if(curr.data.equals(path)) //if doc already added, don't add
                         {
                             flag=false;
                             break;
                         }
+                        
                         if(curr.next==null || curr.next.data.compareTo(path)>0)
                             break;
                         curr=curr.next;
-                        k++;
-                        if(k==5)
+                        
+                        k++; //for initializing skip pointers
+                        
+                        if(k==5) //after every 5 nodes, initialize skip pointer
                         {
                             skipassign.skip=curr;
-                            k=0;
+                            k=0; 
                             skipassign =curr;
                         } 
                     }
                     
-                    if(!curr.data.equals(path) && flag)
+                    if(!curr.data.equals(path) && flag) //append doc to the end
                     {
                         node tempnode=curr.next;
                         curr.next=new node(path);
@@ -347,7 +363,7 @@ HashMap<String,node> map=new HashMap<>();
                         
 
                 }
-                else
+                else //if term not present, create a new term with this name, and initialize its posting list
                 {
                     map.put(stemp, new node(path));
                 }
