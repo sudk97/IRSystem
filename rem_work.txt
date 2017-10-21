@@ -1,0 +1,5 @@
+1. The search function doesn't make use of the posting list nor the skip pointer, instead the DOCs are stored in a string list and compared one by one. Although the skip pointers are intialized, they're never used.
+2. Add more boolean operators, if possible. Currently it's AND by deafult.
+3. Any other changes that you think will simplify the code :)
+
+Happy Coding.
