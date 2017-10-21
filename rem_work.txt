@@ -1,5 +1,7 @@
 1. The search function doesn't make use of the posting list nor the skip pointer, instead the DOCs are stored in a string list and compared one by one. Although the skip pointers are intialized, they're never used.
 2. Add more boolean operators, if possible. Currently it's AND by deafult.
-3. Any other changes that you think will simplify the code :)
+3. The posting list contains the path of documents sorted according to their path. May change the sort function to sort them according to their name rather than path, or instead assign each document to an ID using another map or some data structure and sort accordingly.
+4. All posting lists, variables, etc are local and never stored anywhere. You may add the functionality in which posting list are stored in an external file and retrieved every time you need.
+4. Any other changes that you think will simplify the code :)
 
 Happy Coding.
